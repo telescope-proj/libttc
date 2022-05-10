@@ -90,6 +90,8 @@ int ttcPrivateDispatchBGRA(void * src, void * dst,
                 if (!scratch)
                     return -ENOMEM;
             }
+            ttcSwapCh_8_4(src, scratch, fsize, 2, 1, 0, 3);
+
             ret = ttcPrivateDispatchRGBA(scratch, dst, width, height,
                                          dst_fmt, flags);
             if (scratch != src)

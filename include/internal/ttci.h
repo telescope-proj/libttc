@@ -18,12 +18,15 @@
 extern "C" {
 #endif
 
-#include "ttc_types.h"
+#include <stdint.h>
 
-int ttcTranscode(void * src, void * dst, 
-                 uint64_t width, uint64_t height, 
-                 TTCFormat src_fmt, TTCFormat dst_fmt,
-                 uint64_t flags);
+#if defined(__SSE4_1__)
+    #include <tmmintrin.h>
+#endif
+
+#if defined(__AVX2__)
+    #include <immintrin.h>
+#endif
 
 #ifdef __cplusplus
 }

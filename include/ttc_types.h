@@ -14,17 +14,22 @@
 
 #pragma once
 
-#ifdef __cplusplus
-extern "C" {
-#endif
+typedef enum TTCFormat {
+    TTC_FMT_INVALID,
+    TTC_FMT_RGB,
+    TTC_FMT_RGBA,
+    TTC_FMT_BGRA,
+    TTC_FMT_DXT1,
+    TTC_FMT_DXT5,
+    TTC_FMT_ETC1,
+    TTC_FMT_ETC2,
+    TTC_FMT_ETC2_EAC,
+    TTC_FMT_MAX
+} TTCFormat;
 
-#include "ttc_types.h"
-
-int ttcTranscode(void * src, void * dst, 
-                 uint64_t width, uint64_t height, 
-                 TTCFormat src_fmt, TTCFormat dst_fmt,
-                 uint64_t flags);
-
-#ifdef __cplusplus
-}
-#endif
+typedef enum TTCFlags {
+    TTC_FLAG_SRC_BUF_WRITABLE   = (1 << 0),
+    TTC_FLAG_DITHER             = (1 << 16),
+    TTC_FLAG_HEURISTICS         = (1 << 17),
+    TTC_PRIVATE_FORCE_UINT64    = UINT64_MAX
+} TTCFlags;

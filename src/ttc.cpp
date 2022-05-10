@@ -12,6 +12,7 @@
   See the file LICENSE for details.
 */
 
+#include <cassert>
 #include <inttypes.h>
 #include <string.h>
 #include <stdint.h>
@@ -19,104 +20,53 @@
 #include <errno.h>
 
 #include "ttc.h"
-#include "etcpak/ProcessDxtc.hpp"
-#include "etcpak/ProcessRGB.hpp"
-#include "etcpak/DecodeDxtc.hpp"
+#include "ttc_base.h"
+#include "internal/ttci_dispatch.hpp"
 
-extern "C" void ttcEncodeDXT5( void *src, void* dst, uint32_t width,
-                    uint32_t height, uint32_t format)
+/**
+ * @brief           Perform a transcode operation. The system will attempt to
+ *                  transcode the texture data from src_fmt to dst_fmt.
+ *
+ *                  The requested transcoding operation must be supported.
+ *
+ * @param src       Source format
+ *
+ * @param dst       Destination format
+ *
+ * @param width     Image width
+ *
+ * @param height    Image height
+ *
+ * @param src_fmt   Source format
+ *
+ * @param dst_fmt   Requested output format
+ * 
+ * @param flags     Flags used to control the operation.
+ *
+ * @return          0 on success, -ENOSYS if the texture could not be
+ *                  transcoded.
+ */
+int ttcTranscode(void * src, void * dst, 
+                  uint64_t width, uint64_t height, 
+                  TTCFormat src_fmt, TTCFormat dst_fmt,
+                  uint64_t flags)
 {
-    if ( !src || !dst || !width || !height || !format)
-        return;
-
-    uint32_t* lsrc = (uint32_t*)src;
-    CompressDxt5((uint32_t *) lsrc, (uint64_t *) dst,
-                width * height / 16, width);
-}
-
-extern "C" void ttcEncodeDXT1( void *src, void* dst, uint32_t width,
-                    uint32_t height, uint32_t format)
-{
-    if ( !src || !dst || !width || !height || !format)
-        return;
-
-    uint32_t* lsrc = (uint32_t*)src;
-    CompressDxt1((uint32_t *) lsrc, (uint64_t *) dst,
-                width * height / 16, width);
-}
-
-extern "C" void ttcEncodeETC2RGB( void *src, void* dst, uint32_t width,
-                    uint32_t height, uint32_t format, bool heuristics)
-{
-    if ( !src || !dst || !width || !height || !format)
-        return;
-
-    uint32_t* lsrc = (uint32_t*)src;
-    CompressEtc2Rgb((uint32_t *) lsrc, (uint64_t *) dst,
-                width * height / 16, width, heuristics);
-}
-
-extern "C" void ttcEncodeETC2RGBA( void *src, void* dst, uint32_t width,
-                    uint32_t height, uint32_t format, bool heuristics)
-{
-    if ( !src || !dst || !width || !height || !format)
-        return;
-
-    uint32_t* lsrc = (uint32_t*)src;
-    CompressEtc2Rgba((uint32_t *) lsrc, (uint64_t *) dst,
-                width * height / 16, width, heuristics);
-}
-
-extern "C" void ttcEncodeETC1RGB( void *src, void* dst, uint32_t width,
-                    uint32_t height, uint32_t format)
-{
-    if ( !src || !dst || !width || !height || !format)
-        return;
-
-    uint32_t* lsrc = (uint32_t*)src;
-    CompressEtc1Rgb((uint32_t *) lsrc, (uint64_t *) dst,
-                width * height / 16, width);
-}
-
-extern "C" void ttcDecodeDXT5( void* src, void* dst, uint32_t width,
-                    uint32_t height, uint32_t format)
-{
-    if ( !src || !dst || !width || !height || !format || 
-            width % 4 || height % 4)
-        return;
-
-    uint32_t* ldst = (uint32_t *) dst;
-    uint64_t* lsrc = (uint64_t *) src;
-    for( uint32_t y=0; y<height/4; y++ )
+    // Fast path
+    if (src_fmt == dst_fmt)
     {
-        for( uint32_t x=0; x<width/4; x++ )
-        {
-            uint64_t a = *lsrc++;
-            uint64_t d = *lsrc++;
-            DecodeDxt5Part( a, d, ldst, width );
-            ldst += 4;
-        }
-        ldst += width*3;
+        memcpy(dst, src, ttcGetSize(width, height, src_fmt));
+        return 0;
     }
-}
 
-extern "C" void ttcDecodeDXT1( void* src, void* dst, uint32_t width,
-                    uint32_t height, uint32_t format)
-{
-    if ( !src || !dst || !width || !height || !format ||
-            width % 4 || height % 4)
-        return;
-
-    uint32_t* ldst = (uint32_t *) dst;
-    uint64_t* lsrc = (uint64_t *) src;
-    for( uint32_t y=0; y<height/4; y++ )
+    switch (src_fmt)
     {
-        for( uint32_t x=0; x<width/4; x++ )
-        {
-            uint64_t d = *lsrc++;
-            DecodeDxt1Part( d, ldst, width );
-            ldst += 4;
-        }
-        ldst += width*3;
+        case TTC_FMT_BGRA:
+            return ttcPrivateDispatchBGRA(src, dst, width, height, dst_fmt, 
+                                          flags);
+        case TTC_FMT_RGBA:
+            return ttcPrivateDispatchRGBA(src, dst, width, height, dst_fmt,
+                                          flags);
+        default:
+            return -ENOTSUP;
     }
 }

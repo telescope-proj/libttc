@@ -41,8 +41,8 @@ static inline int ttcPrivateRunRGBAtoDXT1(void * src, void * dst,
 }
 
 static inline int ttcPrivateRunRGBAtoDXT5(void * src, void * dst, 
-                            uint64_t width, uint64_t height,
-                            uint64_t flags)
+                                          uint64_t width, uint64_t height,
+                                          uint64_t flags)
 {
     if (width % 4 || height % 4 || !src || !dst)
         return -EINVAL;
@@ -52,9 +52,9 @@ static inline int ttcPrivateRunRGBAtoDXT5(void * src, void * dst,
     return 0;
 }
 
-static inline int ttcPrivateRunRGBAtoETC1(void * src, void * dst, 
-                            uint64_t width, uint64_t height,
-                            uint64_t flags)
+static inline int ttcPrivateRunBGRAtoETC1(void * src, void * dst, 
+                                          uint64_t width, uint64_t height,
+                                          uint64_t flags)
 {
     if (width % 4 || height % 4 || !src || !dst)
         return -EINVAL;
@@ -72,9 +72,9 @@ static inline int ttcPrivateRunRGBAtoETC1(void * src, void * dst,
     return 0;
 }
 
-static inline int ttcPrivateRunRGBAtoETC2RGB(void * src, void * dst,
-                            uint64_t width, uint64_t height,
-                            uint64_t flags)
+static inline int ttcPrivateRunBGRAtoETC2(void * src, void * dst,
+                                          uint64_t width, uint64_t height,
+                                          uint64_t flags)
 {
     if (width % 4 || height % 4 || !src || !dst)
         return -EINVAL;
@@ -85,9 +85,9 @@ static inline int ttcPrivateRunRGBAtoETC2RGB(void * src, void * dst,
     return 0;
 }
 
-static inline int ttcPrivateRunRGBAtoETC2RGBA(void * src, void * dst,
-                                uint64_t width, uint64_t height,
-                                uint64_t flags)
+static inline int ttcPrivateRunBGRAtoETC2EAC(void * src, void * dst,
+                                             uint64_t width, uint64_t height,
+                                             uint64_t flags)
 {
     if (width % 4 || height % 4 || !src || !dst)
         return -EINVAL;

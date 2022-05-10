@@ -33,6 +33,8 @@ int ttcPrivateDispatchRGBA(void * src, void * dst,
                            TTCFormat dst_fmt, uint64_t flags)
 {
     size_t fsize = ttcGetSize(width, height, TTC_FMT_RGBA);
+    void * scratch;
+    int ret;
     switch (dst_fmt)
     {
         case TTC_FMT_RGBA:
@@ -49,11 +51,27 @@ int ttcPrivateDispatchRGBA(void * src, void * dst,
         case TTC_FMT_DXT5:
             return ttcPrivateRunRGBAtoDXT5(src, dst, width, height, flags);
         case TTC_FMT_ETC1:
-            return ttcPrivateRunRGBAtoETC1(src, dst, width, height, flags);
         case TTC_FMT_ETC2:
-            return ttcPrivateRunRGBAtoETC2RGB(src, dst, width, height, flags);
         case TTC_FMT_ETC2_EAC:
-            return ttcPrivateRunRGBAtoETC2RGBA(src, dst, width, height, flags);
+            if (flags & TTC_FLAG_SRC_BUF_WRITABLE)
+            {
+                scratch = src;
+            }
+            else
+            {
+                scratch = malloc(ttcGetSize(width, height, TTC_FMT_BGRA));
+                if (!scratch)
+                    return -ENOMEM;
+            }
+            ttcSwapCh_8_4(src, scratch, fsize, 2, 1, 0, 3);
+
+            ret = ttcPrivateDispatchBGRA(scratch, dst, width, height,
+                                         dst_fmt, flags);
+            if (scratch != src)
+            {
+                free(scratch);
+            }
+            return ret;
         default:
             return -ENOSYS;
     }
@@ -64,9 +82,8 @@ int ttcPrivateDispatchBGRA(void * src, void * dst,
                            TTCFormat dst_fmt, uint64_t flags)
 {
     size_t fsize = ttcGetSize(width, height, TTC_FMT_BGRA);
-    int ret;
-
     void * scratch;
+    int ret;
     switch (dst_fmt)
     {
         case TTC_FMT_RGBA:
@@ -75,11 +92,14 @@ int ttcPrivateDispatchBGRA(void * src, void * dst,
         case TTC_FMT_RGB:
             ttcConvIn8_4Out8_3(src, dst, fsize, 2, 1, 0);
             return 0;
+        case TTC_FMT_ETC1:
+            return ttcPrivateRunBGRAtoETC1(src, dst, width, height, flags);
+        case TTC_FMT_ETC2:
+            return ttcPrivateRunBGRAtoETC2(src, dst, width, height, flags);
+        case TTC_FMT_ETC2_EAC:
+            return ttcPrivateRunBGRAtoETC2EAC(src, dst, width, height, flags);
         case TTC_FMT_DXT1:
         case TTC_FMT_DXT5:
-        case TTC_FMT_ETC1:
-        case TTC_FMT_ETC2:
-        case TTC_FMT_ETC2_EAC:
             if (flags & TTC_FLAG_SRC_BUF_WRITABLE)
             {
                 scratch = src;

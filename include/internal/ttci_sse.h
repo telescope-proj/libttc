@@ -167,8 +167,7 @@ static inline void ttcPrivateSwapCh_8_4_SSE(void * src, void * dst, uint64_t siz
 {
     __m128i * inp = (__m128i *) src;
     __m128i * out = (__m128i *) dst;
-    size_t rem = size % 16;
-    uint8_t * end = (uint8_t *) src + size - rem;
+    uint8_t * end = (uint8_t *) src + size;
 
     __m128i mask = _mm_set_epi8(
         p3 + 12, p2 + 12, p1 + 12, p0 + 12,

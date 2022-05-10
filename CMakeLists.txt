@@ -5,10 +5,12 @@ include_directories(include)
 
 set(SOURCES
     src/ttc.cpp
+    src/ttc_base.cpp
     src/etcpak/Dither.cpp
     src/etcpak/ProcessDxtc.cpp
     src/etcpak/ProcessRGB.cpp
     src/etcpak/Tables.cpp
+    src/internal/ttci_dispatch.cpp
 )
 
 add_compile_options(

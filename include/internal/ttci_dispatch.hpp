@@ -17,6 +17,9 @@
 #include "etcpak/ProcessDxtc.hpp"
 #include "etcpak/ProcessRGB.hpp"
 
+#include "ttc_types.h"
+#include <errno.h>
+
 static inline int ttcPrivateRunRGBAtoDXT1(void * src, void * dst, 
                             uint64_t width, uint64_t height,
                             uint64_t flags)

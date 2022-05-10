@@ -14,6 +14,8 @@
 
 #pragma once
 
+#include <stdint.h>
+
 typedef enum TTCFormat {
     TTC_FMT_INVALID,
     TTC_FMT_RGB,

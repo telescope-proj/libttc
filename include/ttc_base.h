@@ -18,10 +18,11 @@
 extern "C" {
 #endif
 
-#include <stdint.h>
-
 #include "internal/ttci.h"
 #include "ttc_types.h"
+
+#include <stddef.h>
+#include <stdint.h>
 #include <errno.h>
 
 /**

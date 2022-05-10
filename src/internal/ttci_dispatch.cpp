@@ -12,8 +12,6 @@
   See the file LICENSE for details.
 */
 
-#pragma once
-
 #ifdef __SSE4_1__
     #include <smmintrin.h>
 #endif
@@ -22,27 +20,30 @@
     #include <immintrin.h>
 #endif
 
-#include <errno.h>
-
-#include "ttc_types.h"
-
-#include "ttc_base.h"
 #include "internal/ttci_dispatch.hpp"
+#include "ttc_types.h"
+#include "ttc_base.h"
+
+#include <errno.h>
+#include <string.h>
+#include <stdlib.h>
 
 int ttcPrivateDispatchRGBA(void * src, void * dst,
                            uint64_t width, uint64_t height,
                            TTCFormat dst_fmt, uint64_t flags)
 {
-    size_t fsize = ttcGetSize(width, height, dst_fmt);
+    size_t fsize = ttcGetSize(width, height, TTC_FMT_RGBA);
     switch (dst_fmt)
     {
         case TTC_FMT_RGBA:
             memcpy(dst, src, fsize);
             return 0;
         case TTC_FMT_BGRA:
-            return ttcSwapCh_8_4(src, dst, fsize, 2, 1, 0, 3);
+            ttcSwapCh_8_4(src, dst, fsize, 2, 1, 0, 3);
+            return 0;
         case TTC_FMT_RGB:
-            return ttcConvIn8_4Out8_3(src, dst, fsize, 0, 1, 2);
+            ttcConvIn8_4Out8_3(src, dst, fsize, 0, 1, 2);
+            return 0;
         case TTC_FMT_DXT1:
             return ttcPrivateRunRGBAtoDXT1(src, dst, width, height, flags);
         case TTC_FMT_DXT5:
@@ -62,16 +63,18 @@ int ttcPrivateDispatchBGRA(void * src, void * dst,
                            uint64_t width, uint64_t height, 
                            TTCFormat dst_fmt, uint64_t flags)
 {
-    size_t fsize = ttcGetSize(width, height, dst_fmt);
+    size_t fsize = ttcGetSize(width, height, TTC_FMT_BGRA);
     int ret;
 
     void * scratch;
     switch (dst_fmt)
     {
         case TTC_FMT_RGBA:
-            return ttcPrivateSwapCh_8_4(src, dst, fsize, 2, 1, 0, 3);
+            ttcSwapCh_8_4(src, dst, fsize, 2, 1, 0, 3);
+            return 0;
         case TTC_FMT_RGB:
-            return ttcConvIn8_4Out8_3(src, dst, fsize, 2, 1, 0);
+            ttcConvIn8_4Out8_3(src, dst, fsize, 2, 1, 0);
+            return 0;
         case TTC_FMT_DXT1:
         case TTC_FMT_DXT5:
         case TTC_FMT_ETC1:
@@ -87,7 +90,8 @@ int ttcPrivateDispatchBGRA(void * src, void * dst,
                 if (!scratch)
                     return -ENOMEM;
             }
-            ret = ttcPrivateDispatchRGBA(scratch, dst, fsize, 2, 1, 0, 3);
+            ret = ttcPrivateDispatchRGBA(scratch, dst, width, height,
+                                         dst_fmt, flags);
             if (scratch != src)
             {
                 free(scratch);

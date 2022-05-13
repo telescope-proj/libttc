@@ -21,8 +21,13 @@ add_compile_options(
   "-fdata-sections"
   "-ffunction-sections"
   "$<$<CONFIG:DEBUG>:-O0;-g3;-ggdb>"
-  "$<$<CONFIG:RELEASE>:-O3>"
 )
+
+if (NOT CMAKE_BUILD_TYPE)
+    add_compile_options(
+        "-O3"
+    )
+endif(NOT CMAKE_BUILD_TYPE)
 
 add_library(ttc STATIC ${SOURCES})
 

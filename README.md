@@ -1,11 +1,14 @@
-# Telescope Unified Texture Transcoding & Compression Library
+# Telescope Texture Compression Library
+
+**This library is no longer maintained.**  
+**Please do not file issues or bug reports related to libttc.**
 
 ## Introduction
 
 `libttc` is a compilation of texture compression and transcoding libraries
 designed for real-time use in applications.
 
-Currently, LibTTC only supports CPU-based texture compression.
+LibTTC only supports CPU-based texture compression.
 
 ## Support
 
